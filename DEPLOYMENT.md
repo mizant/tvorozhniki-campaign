@@ -10,9 +10,27 @@ The website has already been built. The production files are located in the `dis
 - `index.html` - Main HTML file
 - `assets/` - Directory containing CSS, JavaScript, and other assets
 
-## Deployment Steps
+## Deployment Options
 
-### Option 1: Using FTP/SFTP
+### Option 1: GitHub Pages (Free Hosting)
+This project is configured to work with GitHub Pages:
+
+1. Create a new repository on GitHub named `tvorozhniki-campaign`
+2. Push the code to GitHub:
+   ```bash
+   git remote add origin https://github.com/yourusername/tvorozhniki-campaign.git
+   git branch -M main
+   git push -u origin main
+   ```
+3. Go to your repository settings on GitHub
+4. Navigate to "Pages" section
+5. Select "GitHub Actions" as the source
+6. The site will be automatically deployed to:
+   `https://yourusername.github.io/tvorozhniki-campaign/`
+
+The GitHub Actions workflow will automatically build and deploy your site whenever you push to the main branch.
+
+### Option 2: Using FTP/SFTP
 1. Connect to your hosting provider using FTP/SFTP client
 2. Upload all contents from the `dist` directory to your website's root directory
 3. Ensure the following files are uploaded:
@@ -22,7 +40,7 @@ The website has already been built. The production files are located in the `dis
    - `sitemap.xml`
    - `assets/` directory with all its contents
 
-### Option 2: Using sweb.ru Control Panel
+### Option 3: Using sweb.ru Control Panel
 1. Log in to your sweb.ru hosting control panel
 2. Navigate to the file manager for your domain
 3. Upload all contents from the `dist` directory to your website's root directory
