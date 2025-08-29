@@ -6,6 +6,7 @@ require('dotenv').config();
 
 // Initialize Express app
 const app = express();
+// Make sure we're using the PORT from Railway environment variables
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -229,7 +230,8 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+// Listen on all interfaces (0.0.0.0) which is required for Railway
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`ТВОРОЖНИКИ.РФ Vote API server is running on port ${PORT}`);
 });
 
