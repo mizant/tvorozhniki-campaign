@@ -4,18 +4,17 @@
     <meta charset="utf-8">
     <title>ТВОРОЖНИКИ, НЕ СЫРНИКИ!</title>
     <script>
-      // SPA redirect for GitHub Pages
+      // Redirect to the main page for SPA routing on GitHub Pages
       var path = window.location.pathname;
-      var repoName = "/tvorozhniki-campaign";
       
-      // If we're accessing a sub-path directly, redirect to root
-      if (path !== repoName + "/" && !path.includes('.')) {
-        window.location.replace(repoName + "/");
+      // Redirect all paths to the root index.html
+      if (path !== '/tvorozhniki-campaign/') {
+        window.location.replace('/tvorozhniki-campaign/');
       }
     </script>
   </head>
   <body>
-    <h1>Перенаправление...</h1>
+    <h1>Перенаправление на главную страницу...</h1>
     <p>Если вы не были перенаправлены автоматически, <a href="/tvorozhniki-campaign/">нажмите здесь</a>.</p>
   </body>
 </html>
