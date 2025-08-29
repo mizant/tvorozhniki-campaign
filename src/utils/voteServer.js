@@ -72,6 +72,7 @@ export async function fetchRecentVotes() {
  */
 export async function fetchVotingStatistics() {
   try {
+    console.log('Fetching voting statistics from:', `${SERVER_URL}/api/votes/stats`);
     const response = await fetch(`${SERVER_URL}/api/votes/stats`, {
       method: 'GET',
       headers: {
@@ -79,11 +80,16 @@ export async function fetchVotingStatistics() {
       },
     });
 
+    console.log('Statistics response status:', response.status);
     if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
+      const errorText = await response.text();
+      console.error('Statistics error response:', errorText);
+      throw new Error(`Server responded with status ${response.status}: ${errorText}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('Statistics response:', result);
+    return result;
   } catch (error) {
     console.error('Failed to fetch voting statistics from server:', error);
     throw error;

@@ -15,13 +15,19 @@ const StatisticsSection = ({ voteCount }) => {
   useEffect(() => {
     const loadStatistics = async () => {
       setLoading(true)
+      console.log('Loading statistics...')
       
       // Initialize baseline data if needed
       initializeStatistics()
       
       // Calculate real statistics
-      const stats = await calculateVotingStatistics()
-      setRealStats(stats)
+      try {
+        const stats = await calculateVotingStatistics()
+        console.log('Received statistics:', stats)
+        setRealStats(stats)
+      } catch (error) {
+        console.error('Error loading statistics:', error)
+      }
       setLoading(false)
     }
     

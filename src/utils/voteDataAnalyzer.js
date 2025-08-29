@@ -1,4 +1,5 @@
 // Vote data aggregation and analysis utilities
+import { fetchVotingStatistics } from './voteServer.js';
 
 /**
  * Get all votes from various storage methods
@@ -114,9 +115,10 @@ export const addToGlobalVotes = (voteData) => {
 };
 
 /**
- * Calculate voting statistics
+ * Calculate voting statistics from local storage
+ * @returns {Object} Voting statistics
  */
-export const calculateVotingStatistics = async () => {
+async function calculateLocalVotingStatistics() {
   const votes = await getAllVotes();
   
   const stats = {
@@ -177,7 +179,25 @@ export const calculateVotingStatistics = async () => {
     .slice(0, 5);
   
   return stats;
-};
+}
+
+/**
+ * Calculate voting statistics with preference for server data
+ * @returns {Promise<Object>} Voting statistics
+ */
+export async function calculateVotingStatistics() {
+  // Try to fetch statistics from the central server first
+  try {
+    console.log('Fetching statistics from server...');
+    const serverStats = await fetchVotingStatistics();
+    console.log('Server statistics received:', serverStats);
+    return serverStats;
+  } catch (error) {
+    console.warn('Failed to fetch server statistics, using local calculation:', error);
+    // Fall back to local calculation if server is unavailable
+    return calculateLocalVotingStatistics();
+  }
+}
 
 /**
  * Calculate time ago in Russian
