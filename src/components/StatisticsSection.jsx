@@ -40,10 +40,10 @@ const StatisticsSection = ({ voteCount }) => {
   }, [voteCount]) // Refresh when voteCount changes
   
   // Use real data or fallback to passed voteCount
-  const displayTotalVotes = realStats.totalVotes > 0 ? realStats.totalVotes : voteCount
-  const displayTvorozhnikis = realStats.tvorozhnikisVotes
-  const displaySyrniki = realStats.syrnikisVotes
-  
+  const displayTotalVotes = (realStats.totalVotes || 0) > 0 ? (realStats.totalVotes || 0) : (voteCount || 0)
+  const displayTvorozhnikis = realStats.tvorozhnikisVotes || 0
+  const displaySyrniki = realStats.syrnikisVotes || 0
+
   const totalGoal = 10000
   const progressPercentage = Math.min((displayTotalVotes / totalGoal) * 100, 100)
 
@@ -89,13 +89,13 @@ const StatisticsSection = ({ voteCount }) => {
                   <div className="vote-bar">
                     <div 
                       className="vote-fill tvorozhniki-fill" 
-                      style={{ width: `${(displayTvorozhnikis / displayTotalVotes) * 100}%` }}
+                      style={{ width: `${((displayTvorozhnikis || 0) / (displayTotalVotes || 1)) * 100}%` }}
                     ></div>
                   </div>
                   <div className="vote-info">
                     <span className="vote-option">ТВОРОЖНИКИ</span>
                     <span className="vote-count">
-                      {displayTvorozhnikis.toLocaleString()} ({Math.round((displayTvorozhnikis / displayTotalVotes) * 100)}%)
+                      {(displayTvorozhnikis || 0).toLocaleString()} ({Math.round(((displayTvorozhnikis || 0) / (displayTotalVotes || 1)) * 100)}%)
                     </span>
                   </div>
                 </div>
@@ -104,13 +104,13 @@ const StatisticsSection = ({ voteCount }) => {
                   <div className="vote-bar">
                     <div 
                       className="vote-fill syrniki-fill" 
-                      style={{ width: `${(displaySyrniki / displayTotalVotes) * 100}%` }}
+                      style={{ width: `${((displaySyrniki || 0) / (displayTotalVotes || 1)) * 100}%` }}
                     ></div>
                   </div>
                   <div className="vote-info">
                     <span className="vote-option">СЫРНИКИ</span>
                     <span className="vote-count">
-                      {displaySyrniki.toLocaleString()} ({Math.round((displaySyrniki / displayTotalVotes) * 100)}%)
+                      {(displaySyrniki || 0).toLocaleString()} ({Math.round(((displaySyrniki || 0) / (displayTotalVotes || 1)) * 100)}%)
                     </span>
                   </div>
                 </div>
@@ -120,6 +120,7 @@ const StatisticsSection = ({ voteCount }) => {
                 <p>Пока нет голосов. Будьте первыми!</p>
               </div>
             )}
+
           </div>
 
           {/* Top Cities */}
@@ -128,11 +129,11 @@ const StatisticsSection = ({ voteCount }) => {
             {realStats.topCities && realStats.topCities.length > 0 ? (
               <div className="cities-list">
                 {realStats.topCities.map((city, index) => (
-                  <div key={city.name} className="city-item">
+                  <div key={city.name || index} className="city-item">
                     <span className="city-position">#{index + 1}</span>
-                    <span className="city-name">{city.name}</span>
+                    <span className="city-name">{city.name || 'Неизвестно'}</span>
                     <span className="city-votes">
-                      {city.votes} {city.votes === 1 ? 'голос' : city.votes < 5 ? 'голоса' : 'голосов'}
+                      {(city.votes || 0)} {(city.votes || 0) === 1 ? 'голос' : (city.votes || 0) < 5 ? 'голоса' : 'голосов'}
                     </span>
                   </div>
                 ))}
@@ -151,11 +152,11 @@ const StatisticsSection = ({ voteCount }) => {
               <div className="activity-feed">
                 {realStats.recentVotes.slice(0, 4).map((activity, index) => (
                   <div key={`${activity.timestamp}-${index}`} className="activity-item">
-                    <span className="voter">{activity.name}, {activity.city}</span>
-                    <span className={`vote ${activity.choice}`}>
-                      → {activity.choice === 'tvorozhniki' ? 'ТВОРОЖНИКИ' : 'СЫРНИКИ'}
+                    <span className="voter">{activity.name || 'Аноним'}, {activity.city || 'Неизвестно'}</span>
+                    <span className={`vote ${activity.choice || ''}`}>
+                      → {activity.choice === 'tvorozhniki' ? 'ТВОРОЖНИКИ' : activity.choice === 'syrniki' ? 'СЫРНИКИ' : 'Неизвестно'}
                     </span>
-                    <span className="time">{activity.timeAgo}</span>
+                    <span className="time">{activity.timeAgo || 'недавно'}</span>
                   </div>
                 ))}
               </div>

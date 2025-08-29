@@ -123,8 +123,8 @@ app.get('/api/votes/stats', (req, res) => {
   // Get total votes and counts by choice
   db.all(`SELECT 
             COUNT(*) as totalVotes,
-            SUM(CASE WHEN choice = 'tvorozhniki' THEN 1 ELSE 0 END) as tvorozhnikisVotes,
-            SUM(CASE WHEN choice = 'syrniki' THEN 1 ELSE 0 END) as syrnikisVotes
+            COALESCE(SUM(CASE WHEN choice = 'tvorozhniki' THEN 1 ELSE 0 END), 0) as tvorozhnikisVotes,
+            COALESCE(SUM(CASE WHEN choice = 'syrniki' THEN 1 ELSE 0 END), 0) as syrnikisVotes
           FROM votes`, [], (err, rows) => {
     if (err) {
       console.error('Error fetching vote statistics:', err.message);
@@ -137,8 +137,8 @@ app.get('/api/votes/stats', (req, res) => {
     db.all(`SELECT 
               city,
               COUNT(*) as votes,
-              SUM(CASE WHEN choice = 'tvorozhniki' THEN 1 ELSE 0 END) as tvorozhniki,
-              SUM(CASE WHEN choice = 'syrniki' THEN 1 ELSE 0 END) as syrniki
+              COALESCE(SUM(CASE WHEN choice = 'tvorozhniki' THEN 1 ELSE 0 END), 0) as tvorozhniki,
+              COALESCE(SUM(CASE WHEN choice = 'syrniki' THEN 1 ELSE 0 END), 0) as syrniki
             FROM votes 
             GROUP BY city 
             ORDER BY votes DESC 
