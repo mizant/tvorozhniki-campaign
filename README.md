@@ -10,6 +10,11 @@
 
 Веб-сайт доступен по адресу: [https://творожники.рф](https://творожники.рф)
 
+## GitHub Pages
+
+Сайт также доступен на GitHub Pages: [https://yourusername.github.io/tvorozhniki-campaign/](https://yourusername.github.io/tvorozhniki-campaign/)
+(Замените "yourusername" на ваше имя пользователя GitHub)
+
 ## Технологии
 
 - React + Vite
@@ -33,6 +38,26 @@ npm run build
 npm run preview
 ```
 
+## Деплой
+
+### GitHub Pages
+1. Создайте репозиторий на GitHub с именем `tvorozhniki-campaign`
+2. Добавьте этот репозиторий как удаленный:
+   ```bash
+   git remote add origin https://github.com/yourusername/tvorozhniki-campaign.git
+   ```
+3. Отправьте код на GitHub:
+   ```bash
+   git push -u origin main
+   ```
+4. В настройках репозитория GitHub перейдите в раздел "Pages"
+5. Выберите "GitHub Actions" в качестве источника
+6. Сайт будет автоматически развернут по адресу:
+   `https://yourusername.github.io/tvorozhniki-campaign/`
+
+### Другие хостинги
+Подробная инструкция по развертыванию находится в файле [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Структура проекта
 
 - `src/` - Исходный код приложения
@@ -42,10 +67,6 @@ npm run preview
   - `main.jsx` - Точка входа в приложение
 - `public/` - Статические файлы
 - `dist/` - Собранный продакшен-код (генерируется автоматически)
-
-## Деплой
-
-Подробная инструкция по развертыванию находится в файле [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Лицензия
 
