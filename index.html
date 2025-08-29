@@ -15,21 +15,40 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://творожники.рф/">
+    <meta property="og:url" content="https://mizant.github.io/tvorozhniki-campaign/">
     <meta property="og:title" content="ТВОРОЖНИКИ, НЕ СЫРНИКИ! - Инициатива по переименованию">
     <meta property="og:description" content="Присоединяйтесь к общественной инициативе по восстановлению исторической справедливости в названии любимого блюда из творога! Поддержите правильное название - ТВОРОЖНИКИ.">
-    <meta property="og:image" content="https://творожники.рф/preview.jpg">
+    <meta property="og:image" content="https://mizant.github.io/tvorozhniki-campaign/preview.jpg">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://творожники.рф/">
+    <meta property="twitter:url" content="https://mizant.github.io/tvorozhniki-campaign/">
     <meta property="twitter:title" content="ТВОРОЖНИКИ, НЕ СЫРНИКИ! - Инициатива по переименованию">
     <meta property="twitter:description" content="Присоединяйтесь к общественной инициативе по восстановлению исторической справедливости в названии любимого блюда из творога! Поддержите правильное название - ТВОРОЖНИКИ.">
-    <meta property="twitter:image" content="https://творожники.рф/preview.jpg">
+    <meta property="twitter:image" content="https://mizant.github.io/tvorozhniki-campaign/preview.jpg">
     
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#ff6b35">
-    <link rel="canonical" href="https://творожники.рф/">
+    <link rel="canonical" href="https://mizant.github.io/tvorozhniki-campaign/">
+    
+    <!-- GitHub Pages SPA Routing Fix -->
+    <script>
+      // Handle GitHub Pages routing for SPA
+      (function() {
+        var location = window.location;
+        var path = location.pathname;
+        
+        // If we're accessing a sub-path directly, redirect to root with hash
+        // This helps with direct navigation to routes like /#vote
+        if (path !== '/' && path.indexOf('.html') === -1) {
+          // Don't redirect if it's a file extension
+          if (!/\.[^\/]+$/.test(path)) {
+            // Redirect to root with hash for SPA routing
+            window.location.replace('/#' + path);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
