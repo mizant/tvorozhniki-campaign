@@ -5,7 +5,7 @@ const SERVER_URL = typeof process !== 'undefined' && process.env.VOTE_SERVER_URL
   ? process.env.VOTE_SERVER_URL 
   : (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
     ? 'http://localhost:3000' 
-    : 'https://your-railway-app-url.up.railway.app'; // Replace with your actual Railway URL
+    : 'https://tvorozhniki-campaign-production.up.railway.app'; // Updated with your actual Railway URL
 
 /**
  * Send a vote to the central server
