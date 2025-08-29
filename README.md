@@ -55,6 +55,16 @@ npm run preview
 6. Сайт будет автоматически развернут по адресу:
    `https://yourusername.github.io/tvorozhniki-campaign/`
 
+### Railway (Backend API)
+Для централизованного хранения голосов создана отдельная backend-часть в директории `backend/`:
+
+1. Backend API написан на Node.js + Express
+2. Использует SQLite для хранения данных
+3. Предоставляет RESTful API для работы с голосами
+4. Готов к развертыванию на Railway
+
+Подробная инструкция по развертыванию backend находится в файле [RAILWAY_DEPLOYMENT_GUIDE.md](RAILWAY_DEPLOYMENT_GUIDE.md).
+
 ### Другие хостинги
 Подробная инструкция по развертыванию находится в файле [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -67,6 +77,14 @@ npm run preview
   - `main.jsx` - Точка входа в приложение
 - `public/` - Статические файлы
 - `dist/` - Собранный продакшен-код (генерируется автоматически)
+- `backend/` - Backend API для централизованного хранения голосов
+  - `server.js` - Главный файл сервера
+  - `package.json` - Зависимости и скрипты
+  - `railway.json` - Конфигурация Railway
+
+## Архитектура
+
+Архитектура системы описана в файле [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Лицензия
 
