@@ -13,6 +13,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Add logging middleware to see incoming requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
 // Initialize SQLite database
 const dbPath = process.env.DB_PATH || './votes.db';
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -68,10 +74,12 @@ app.get('/', (req, res) => {
 
 // Submit a vote
 app.post('/api/votes', (req, res) => {
+  console.log('Received vote request:', req.body);
   const { choice, name, city, email, fingerprint } = req.body;
   
   // Validate required fields
   if (!choice || !name || !city || !fingerprint) {
+    console.log('Missing required fields:', { choice, name, city, fingerprint });
     return res.status(400).json({ 
       error: 'Missing required fields: choice, name, city, fingerprint' 
     });
@@ -85,6 +93,7 @@ app.post('/api/votes', (req, res) => {
     }
     
     if (row) {
+      console.log('Duplicate vote detected for fingerprint:', fingerprint);
       return res.status(409).json({ 
         error: 'Vote already recorded for this device/browser' 
       });
@@ -99,6 +108,7 @@ app.post('/api/votes', (req, res) => {
         return res.status(500).json({ error: 'Failed to record vote' });
       }
       
+      console.log('Vote recorded successfully with ID:', this.lastID);
       res.status(201).json({
         id: this.lastID,
         message: 'Vote recorded successfully'

@@ -1,5 +1,5 @@
 // Vote tracking utilities to prevent duplicate voting
-import { addToGlobalVotes } from './voteDataAnalyzer';
+import { sendVoteToServer } from './voteServer.js';
 
 /**
  * Generate a simple browser fingerprint based on available browser characteristics
@@ -63,76 +63,84 @@ export const hasUserVoted = () => {
 };
 
 /**
- * Record a vote with multiple tracking methods
+ * Record a vote in all available storage mechanisms
+ * @param {Object} voteData - The vote data to record
+ * @returns {Object} The recorded vote data
  */
-export const recordVote = (voteData) => {
-  const timestamp = new Date().toISOString();
-  const browserFingerprint = generateBrowserFingerprint();
+export async function recordVote(voteData) {
+  const timestamp = Date.now();
+  const fingerprint = generateBrowserFingerprint();
   
-  const voteRecord = {
+  const finalVote = {
     ...voteData,
     timestamp,
-    fingerprint: browserFingerprint,
-    id: generateVoteId()
+    fingerprint
   };
 
-  // Method 1: localStorage (persistent)
-  localStorage.setItem('tvorozhniki_vote_cast', JSON.stringify(voteRecord));
-  
-  // Method 2: sessionStorage (session-based)
-  sessionStorage.setItem('tvorozhniki_vote_session', JSON.stringify(voteRecord));
-  
-  // Method 3: Add fingerprint to collection
-  const storedFingerprints = JSON.parse(localStorage.getItem('tvorozhniki_fingerprints') || '[]');
-  if (!storedFingerprints.includes(browserFingerprint)) {
-    storedFingerprints.push(browserFingerprint);
-    localStorage.setItem('tvorozhniki_fingerprints', JSON.stringify(storedFingerprints));
+  // Method 1: localStorage
+  try {
+    localStorage.setItem('tvorozhniki_vote', JSON.stringify(finalVote));
+  } catch (e) {
+    console.warn('Failed to store vote in localStorage:', e);
   }
 
-  // Method 4: Store in IndexedDB for more persistent storage
-  storeVoteInIndexedDB(voteRecord);
-  
-  // Method 5: Add to global vote collection for statistics
-  addToGlobalVotes(voteRecord);
-
-  return voteRecord;
-};
-
-/**
- * Generate a unique vote ID
- */
-const generateVoteId = () => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
-
-/**
- * Store vote in IndexedDB for enhanced persistence
- */
-const storeVoteInIndexedDB = async (voteRecord) => {
-  if (!window.indexedDB) return;
-
+  // Method 2: sessionStorage
   try {
-    const request = indexedDB.open('TvorozhnikVotes', 1);
+    sessionStorage.setItem('tvorozhniki_vote', JSON.stringify(finalVote));
+  } catch (e) {
+    console.warn('Failed to store vote in sessionStorage:', e);
+  }
+
+  // Method 3: IndexedDB
+  try {
+    const request = indexedDB.open('TvorozhnikiDB', 1);
     
-    request.onupgradeneeded = (event) => {
+    request.onupgradeneeded = function(event) {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('votes')) {
-        const store = db.createObjectStore('votes', { keyPath: 'id' });
-        store.createIndex('fingerprint', 'fingerprint', { unique: false });
-        store.createIndex('timestamp', 'timestamp', { unique: false });
+        db.createObjectStore('votes', { keyPath: 'id' });
       }
     };
-
-    request.onsuccess = (event) => {
+    
+    request.onsuccess = function(event) {
       const db = event.target.result;
       const transaction = db.transaction(['votes'], 'readwrite');
       const store = transaction.objectStore('votes');
-      store.add(voteRecord);
+      store.put({ id: 'latest', ...finalVote });
     };
-  } catch (err) {
-    console.warn('IndexedDB storage failed:', err);
+  } catch (e) {
+    console.warn('Failed to store vote in IndexedDB:', e);
   }
-};
+
+  // Method 4: Cookies (as a backup)
+  try {
+    document.cookie = `tvorozhniki_vote=${JSON.stringify(finalVote)}; max-age=31536000; path=/`;
+  } catch (e) {
+    console.warn('Failed to store vote in cookies:', e);
+  }
+
+  // Method 5: Fingerprint-based tracking
+  // The fingerprint is already included in the vote data
+
+  // Method 6: Send to central server
+  try {
+    console.log('Sending vote to server:', finalVote);
+    await sendVoteToServer(finalVote);
+    console.log('Vote successfully sent to central server');
+  } catch (e) {
+    console.warn('Failed to send vote to central server:', e);
+    // Store in a retry queue for later attempts
+    try {
+      const pendingVotes = JSON.parse(localStorage.getItem('pending_votes') || '[]');
+      pendingVotes.push(finalVote);
+      localStorage.setItem('pending_votes', JSON.stringify(pendingVotes));
+    } catch (storageError) {
+      console.warn('Failed to store vote in retry queue:', storageError);
+    }
+  }
+
+  return finalVote;
+}
 
 /**
  * Check IndexedDB for existing votes
@@ -153,24 +161,23 @@ export const checkIndexedDBVotes = async () => {
 
         const transaction = db.transaction(['votes'], 'readonly');
         const store = transaction.objectStore('votes');
-        const fingerprint = generateBrowserFingerprint();
-        const index = store.index('fingerprint');
-        const request = index.getAll(fingerprint);
-
-        request.onsuccess = () => {
-          resolve(request.result.length > 0);
+        const getAllRequest = store.getAll();
+        
+        getAllRequest.onsuccess = () => {
+          const votes = getAllRequest.result || [];
+          resolve(votes.length > 0);
         };
-
-        request.onerror = () => {
+        
+        getAllRequest.onerror = () => {
           resolve(false);
         };
       };
-
+      
       request.onerror = () => {
         resolve(false);
       };
-    } catch (err) {
-      console.warn('IndexedDB storage failed:', err);
+    } catch (error) {
+      console.error('Error checking IndexedDB votes:', error);
       resolve(false);
     }
   });
@@ -185,65 +192,53 @@ export const isValidEmail = (email) => {
 };
 
 /**
- * Generate verification code for email
+ * Generate a random verification code
  */
 export const generateVerificationCode = () => {
-  return Math.random().toString(36).substr(2, 8).toUpperCase();
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 };
 
 /**
- * Store pending vote for email verification
+ * Store pending vote with verification code
  */
-export const storePendingVote = (voteData, verificationCode) => {
-  const pendingVote = {
-    ...voteData,
-    verificationCode,
-    timestamp: new Date().toISOString(),
-    expires: new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 minutes
-  };
-  
-  localStorage.setItem('tvorozhniki_pending_vote', JSON.stringify(pendingVote));
-  return pendingVote;
+export const storePendingVote = (voteData, code) => {
+  sessionStorage.setItem('pending_vote', JSON.stringify(voteData));
+  sessionStorage.setItem('verification_code', code);
 };
 
 /**
- * Verify and confirm pending vote
+ * Verify a pending vote with email confirmation
+ * @param {string} code - The verification code entered by the user
+ * @returns {Object} Result of the verification
  */
-export const verifyPendingVote = (inputCode) => {
-  const pendingVoteStr = localStorage.getItem('tvorozhniki_pending_vote');
-  if (!pendingVoteStr) return { success: false, error: 'Нет ожидающих голосов' };
-
-  const pendingVote = JSON.parse(pendingVoteStr);
-  
-  // Check if expired
-  if (new Date() > new Date(pendingVote.expires)) {
-    localStorage.removeItem('tvorozhniki_pending_vote');
-    return { success: false, error: 'Код истёк. Попробуйте снова.' };
+export async function verifyPendingVote(code) {
+  try {
+    const pendingVote = JSON.parse(sessionStorage.getItem('pending_vote') || 'null');
+    const storedCode = sessionStorage.getItem('verification_code');
+    
+    if (!pendingVote || !storedCode) {
+      return { success: false, error: 'Нет данных для подтверждения' };
+    }
+    
+    if (code === storedCode) {
+      // Record the verified vote
+      const finalVote = await recordVote(pendingVote);
+      
+      // Clean up temporary storage
+      sessionStorage.removeItem('pending_vote');
+      sessionStorage.removeItem('verification_code');
+      
+      return { success: true, vote: finalVote };
+    } else {
+      return { success: false, error: 'Неверный код подтверждения' };
+    }
+  } catch (error) {
+    console.error('Error verifying pending vote:', error);
+    return { success: false, error: 'Ошибка при подтверждении голоса' };
   }
-
-  // Check code
-  if (inputCode.toUpperCase() !== pendingVote.verificationCode) {
-    return { success: false, error: 'Неверный код подтверждения' };
-  }
-
-  // Code is correct - record the vote
-  const finalVote = recordVote(pendingVote);
-  localStorage.removeItem('tvorozhniki_pending_vote');
-  
-  return { success: true, vote: finalVote };
-};
-
-/**
- * Clear all vote data (for testing purposes)
- */
-export const clearAllVoteData = () => {
-  localStorage.removeItem('tvorozhniki_vote_cast');
-  localStorage.removeItem('tvorozhniki_fingerprints');
-  localStorage.removeItem('tvorozhniki_pending_vote');
-  sessionStorage.removeItem('tvorozhniki_vote_session');
-  
-  // Clear IndexedDB
-  if (window.indexedDB) {
-    indexedDB.deleteDatabase('TvorozhnikVotes');
-  }
-};
+}

@@ -14,6 +14,9 @@ const SERVER_URL = typeof process !== 'undefined' && process.env.VOTE_SERVER_URL
  */
 export async function sendVoteToServer(voteData) {
   try {
+    console.log('Sending vote to:', `${SERVER_URL}/api/votes`);
+    console.log('Vote data:', voteData);
+    
     const response = await fetch(`${SERVER_URL}/api/votes`, {
       method: 'POST',
       headers: {
@@ -22,11 +25,17 @@ export async function sendVoteToServer(voteData) {
       body: JSON.stringify(voteData),
     });
 
+    console.log('Server response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      throw new Error(`Server responded with status ${response.status}: ${errorText}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('Server response:', result);
+    return result;
   } catch (error) {
     console.error('Failed to send vote to server:', error);
     throw error;
