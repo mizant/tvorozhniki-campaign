@@ -12,7 +12,7 @@
 
 ## GitHub Pages
 
-Сайт также доступен на GitHub Pages: [https://yourusername.github.io/tvorozhniki-campaign/](https://yourusername.github.io/tvorozhniki-campaign/)
+Сайт также доступен на GitHub Pages: [https://mizant.github.io/tvorozhniki-campaign/](https://yourusername.github.io/tvorozhniki-campaign/)
 (Замените "yourusername" на ваше имя пользователя GitHub)
 
 ## Технологии
