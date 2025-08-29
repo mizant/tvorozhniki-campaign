@@ -30,25 +30,6 @@
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#ff6b35">
     <link rel="canonical" href="https://mizant.github.io/tvorozhniki-campaign/">
-    
-    <!-- GitHub Pages SPA Routing Fix -->
-    <script>
-      // Handle GitHub Pages routing for SPA
-      (function() {
-        var location = window.location;
-        var path = location.pathname;
-        
-        // If we're accessing a sub-path directly, redirect to root with hash
-        // This helps with direct navigation to routes like /#vote
-        if (path !== '/' && path.indexOf('.html') === -1) {
-          // Don't redirect if it's a file extension
-          if (!/\.[^\/]+$/.test(path)) {
-            // Redirect to root with hash for SPA routing
-            window.location.replace('/#' + path);
-          }
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

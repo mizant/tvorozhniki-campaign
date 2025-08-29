@@ -1,26 +1,21 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
-    <title>ТВОРОЖНИКИ, НЕ СЫРНИКИ! - Перенаправление</title>
+    <title>ТВОРОЖНИКИ, НЕ СЫРНИКИ!</title>
     <script>
-        // For GitHub Pages SPA routing
-        // Redirect to the main page and let the SPA router handle the route
-        var path = window.location.pathname;
-        var query = window.location.search;
-        var hash = window.location.hash;
-        
-        // If we're already at the root, don't redirect
-        if (path === '/' || path === '/index.html') {
-            // Do nothing, let the page load normally
-        } else {
-            // Redirect to the main page
-            window.location.href = '/' + query + hash;
-        }
+      // SPA redirect for GitHub Pages
+      var path = window.location.pathname;
+      var repoName = "/tvorozhniki-campaign";
+      
+      // If we're accessing a sub-path directly, redirect to root
+      if (path !== repoName + "/" && !path.includes('.')) {
+        window.location.replace(repoName + "/");
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Перенаправление...</h1>
-    <p>Если вы не были перенаправлены автоматически, <a href="/">нажмите здесь</a>.</p>
-</body>
+    <p>Если вы не были перенаправлены автоматически, <a href="/tvorozhniki-campaign/">нажмите здесь</a>.</p>
+  </body>
 </html>
