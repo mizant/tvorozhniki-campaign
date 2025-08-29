@@ -129,8 +129,8 @@ const storeVoteInIndexedDB = async (voteRecord) => {
       const store = transaction.objectStore('votes');
       store.add(voteRecord);
     };
-  } catch (error) {
-    console.warn('IndexedDB storage failed:', error);
+  } catch (err) {
+    console.warn('IndexedDB storage failed:', err);
   }
 };
 
@@ -169,7 +169,8 @@ export const checkIndexedDBVotes = async () => {
       request.onerror = () => {
         resolve(false);
       };
-    } catch (error) {
+    } catch (err) {
+      console.warn('IndexedDB storage failed:', err);
       resolve(false);
     }
   });

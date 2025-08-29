@@ -12,8 +12,8 @@ export const getAllVotes = async () => {
     try {
       const vote = JSON.parse(localStorageVote);
       votes.push({ ...vote, source: 'localStorage' });
-    } catch (error) {
-      console.warn('Error parsing localStorage vote:', error);
+    } catch (err) {
+      console.warn('Error parsing localStorage vote:', err);
     }
   }
   
@@ -67,6 +67,7 @@ const getVotesFromIndexedDB = async () => {
         resolve([]);
       };
     } catch (error) {
+      console.error(error);
       resolve([]);
     }
   });
@@ -80,6 +81,7 @@ const getGlobalVotes = () => {
     const globalVotesStr = localStorage.getItem('tvorozhniki_global_votes');
     return globalVotesStr ? JSON.parse(globalVotesStr) : [];
   } catch (error) {
+    console.error(error);
     return [];
   }
 };

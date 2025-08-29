@@ -6,12 +6,10 @@ import {
   isValidEmail,
   generateVerificationCode,
   storePendingVote,
-  verifyPendingVote,
-  clearAllVoteData
+  verifyPendingVote
 } from '../utils/voteTracker'
-import { clearAllVotingData } from '../utils/voteDataAnalyzer'
 
-const VotingSection = ({ onVote, hasVoted }) => {
+const VotingSection = ({ onVote }) => {
   const [selectedOption, setSelectedOption] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [showVerification, setShowVerification] = useState(false)
@@ -76,7 +74,7 @@ const VotingSection = ({ onVote, hasVoted }) => {
       console.log(`Verification code for ${voterInfo.email}: ${code}`)
       
       // In development, also store the code for display
-      if (process.env.NODE_ENV === 'development') {
+      if (typeof window !== 'undefined' && window.process && window.process.env.NODE_ENV === 'development') {
         setVerificationCode('')  // Clear any existing code
         // Store the generated code temporarily for development display
         window.devVerificationCode = code
@@ -93,6 +91,7 @@ const VotingSection = ({ onVote, hasVoted }) => {
         onVote()
         setShowForm(false)
       } catch (error) {
+        console.error('Error recording vote:', error);
         setError('Произошла ошибка при записи голоса. Попробуйте снова.')
       }
       setLoading(false)
@@ -298,7 +297,7 @@ const VotingSection = ({ onVote, hasVoted }) => {
               </p>
               
               {/* Development: Show verification code directly */}
-              {process.env.NODE_ENV === 'development' && window.devVerificationCode && (
+              {typeof window !== 'undefined' && window.process && window.process.env.NODE_ENV === 'development' && window.devVerificationCode && (
                 <div className="dev-verification-display">
                   <h4>🧪 Режим разработки</h4>
                   <p>Ваш код подтверждения: <strong className="verification-code-display">{window.devVerificationCode}</strong></p>
@@ -318,7 +317,7 @@ const VotingSection = ({ onVote, hasVoted }) => {
                     className="verification-input"
                   />
                   {/* Development: Auto-fill button */}
-                  {process.env.NODE_ENV === 'development' && window.devVerificationCode && (
+                  {typeof window !== 'undefined' && window.process && window.process.env.NODE_ENV === 'development' && window.devVerificationCode && (
                     <button 
                       type="button"
                       onClick={() => setVerificationCode(window.devVerificationCode)}
